@@ -154,6 +154,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--gold)}
 </aside>
 <div class="toast" id="toast" role="status"></div>
 
+<script>/* Address of the API. Leave empty if the API is on this same site; otherwise e.g. "https://primeeraapi.vercel.app" */window.PE_API_BASE='';</script>
 <script>
 (() => {
   'use strict';
@@ -175,10 +176,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--gold)}
   };
 
   /* ---------- api ---------- */
+  // Same-site: an HttpOnly cookie does the work. API on another address: the sign-in token is kept for this tab only.
+  const BASE = (window.PE_API_BASE || '').replace(/\/+$/, ''), CROSS = !!BASE;
+  const tok = { get() { try { return sessionStorage.getItem('pe_tok') || ''; } catch (e) { return ''; } }, set(v) { try { v ? sessionStorage.setItem('pe_tok', v) : sessionStorage.removeItem('pe_tok'); } catch (e) { /* private mode */ } } };
   async function api(url, opts = {}) {
-    const r = await fetch(url, { credentials: 'same-origin', ...opts, headers: { 'Content-Type': 'application/json', 'X-PE-Admin': '1', ...(opts.headers || {}) } });
+    const t = CROSS ? tok.get() : '';
+    const r = await fetch(BASE + url, { credentials: CROSS ? 'omit' : 'same-origin', ...opts, headers: { 'Content-Type': 'application/json', 'X-PE-Admin': '1', ...(t ? { Authorization: 'Bearer ' + t } : {}), ...(opts.headers || {}) } });
     let d = null; try { d = await r.json(); } catch (e) { /* empty */ }
-    if (r.status === 401 && !url.endsWith('/login')) { showLogin(); throw new Error('Please sign in again.'); }
+    if (r.status === 401 && !url.endsWith('/login')) { tok.set(''); showLogin(); throw new Error('Please sign in again.'); }
     if (!r.ok) { const e = new Error((d && d.error) || 'Something went wrong (' + r.status + ')'); e.code = d && d.error; e.status = r.status; throw e; }
     return d;
   }
@@ -209,7 +214,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--gold)}
     e.preventDefault();
     const btn = $('#loginBtn'); btn.disabled = true; $('#loginErr').textContent = '';
     try {
-      await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ password: $('#pw').value }) });
+      const res = await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ password: $('#pw').value }) });
+      if (CROSS) tok.set(res.token || '');
       $('#pw').value = ''; showApp(); await load();
     } catch (err) {
       $('#loginErr').textContent = err.code === 'wrong_password' ? 'That password is not right.'
@@ -218,7 +224,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--gold)}
         : err.message;
     } finally { btn.disabled = false; }
   });
-  $('#logout').addEventListener('click', async () => { try { await api('/api/admin/login', { method: 'DELETE' }); } catch (e) { /* ignore */ } showLogin(); });
+  $('#logout').addEventListener('click', async () => { try { await api('/api/admin/login', { method: 'DELETE' }); } catch (e) { /* ignore */ } tok.set(''); showLogin(); });
   $('#refresh').addEventListener('click', () => load());
 
   /* ---------- data ---------- */

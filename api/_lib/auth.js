@@ -44,7 +44,13 @@ function cookieOf(req) {
   return '';
 }
 
-const isAuthed = req => verifyToken(cookieOf(req));
+function bearerOf(req) {
+  const h = (req.headers || {}).authorization || '';
+  return /^Bearer /i.test(h) ? h.slice(7).trim() : '';
+}
+
+/* Same-site use sends the HttpOnly cookie; a portal on another address sends the token as "Authorization: Bearer". */
+const isAuthed = req => verifyToken(cookieOf(req)) || verifyToken(bearerOf(req));
 
 function setCookie(res, token, secure) {
   res.setHeader('Set-Cookie', `${COOKIE}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${TTL_SEC}${secure ? '; Secure' : ''}`);

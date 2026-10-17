@@ -4,12 +4,13 @@
 'use strict';
 const auth = require('../_lib/auth');
 const store = require('../_lib/store');
-const { send, ip, body, isJson, isHttps } = require('../_lib/http');
+const { send, ip, body, isJson, isHttps, cors } = require('../_lib/http');
 
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
 module.exports = async function handler(req, res) {
   try {
+    if (cors(req, res)) return;
     const secure = isHttps(req);
     if (req.method === 'GET') {
       return send(res, 200, { authed: auth.isAuthed(req), configured: auth.configured(), storage: store.mode() });
@@ -26,8 +27,9 @@ module.exports = async function handler(req, res) {
 
     const d = body(req) || {};
     if (!auth.checkPassword(d.password)) { await wait(500); return send(res, 401, { error: 'wrong_password' }); }
-    auth.setCookie(res, auth.makeToken(), secure);
-    return send(res, 200, { ok: true });
+    const token = auth.makeToken();
+    auth.setCookie(res, token, secure);
+    return send(res, 200, { ok: true, token });
   } catch (e) {
     console.error('login failed:', e && e.message);
     return send(res, 500, { error: 'server_error' });

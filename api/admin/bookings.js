@@ -5,10 +5,11 @@
 'use strict';
 const auth = require('../_lib/auth');
 const store = require('../_lib/store');
-const { send, body, isJson } = require('../_lib/http');
+const { send, body, isJson, cors } = require('../_lib/http');
 
 module.exports = async function handler(req, res) {
   try {
+    if (cors(req, res)) return;
     if (!auth.isAuthed(req)) return send(res, 401, { error: 'unauthorized' });
     const mode = store.mode();
 
