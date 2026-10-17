@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin | Prime Era</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Inter:wght@400;500;600&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b0b;--bg2:#131313;--bg3:#1a1a1a;--ink:#f5f5f5;--muted:#8e8c85;--line:rgba(245,245,245,.12);--gold:#d4af37;--gold-hi:#f6dc93;
+  --new:#d4af37;--confirmed:#4cc38a;--done:#8e8c85;--cancelled:#e5646e;--noshow:#e8954a}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 Inter,system-ui,sans-serif;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+[hidden]{display:none!important}
+.mono{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* ---- login ---- */
+.login{min-height:100vh;display:grid;place-items:center;padding:1.5rem;background:radial-gradient(60% 50% at 50% 30%,rgba(212,175,55,.1),transparent 70%)}
+.login__card{width:min(420px,100%);background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:2.2rem 2rem;text-align:center}
+.brand{font-family:Cinzel,serif;font-weight:600;letter-spacing:.22em;color:var(--gold-hi);font-size:1.05rem}
+.login h1{font:500 1.9rem/1.1 'Playfair Display',serif;margin:1.2rem 0 .4rem}
+.login p{color:var(--muted);margin:0 0 1.4rem}
+.field{display:block;text-align:left;margin-bottom:1rem}
+.field span{display:block;margin-bottom:.4rem}
+input[type=password],input[type=search],input[type=text],select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;border:0;border-radius:999px;padding:.75rem 1.4rem;font-weight:600;cursor:pointer;background:var(--gold);color:#0b0b0b;transition:filter .2s,transform .2s}
+.btn:hover{filter:brightness(1.08)}.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.5;cursor:default}
+.btn{white-space:nowrap}
+.btn--ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn--ghost:hover{border-color:var(--gold);filter:none}
+.btn--danger{background:transparent;color:var(--cancelled);border:1px solid rgba(229,100,110,.45)}
+.btn--sm{padding:.5rem 1rem;font-size:.85rem}
+.err{color:var(--cancelled);min-height:1.4em;margin:.8rem 0 0;font-size:.9rem}
+
+/* ---- app shell ---- */
+.top{flex-wrap:wrap;position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:1rem;justify-content:space-between;padding:.9rem clamp(1rem,3vw,2.2rem);background:rgba(11,11,11,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top__r{display:flex;gap:.6rem;align-items:center}
+.wrap{padding:1.5rem clamp(1rem,3vw,2.2rem) 4rem;max-width:1400px;margin:0 auto}
+.banner{border:1px solid rgba(212,175,55,.45);background:rgba(212,175,55,.08);border-radius:14px;padding:.9rem 1.1rem;margin-bottom:1.2rem;color:var(--gold-hi)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.4rem}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:1rem 1.2rem}
+.stat b{display:block;font:500 2rem/1.1 'Playfair Display',serif;margin-top:.3rem}
+.stat--new b{color:var(--gold)}
+.bar{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;margin-bottom:1rem}
+.tabs{display:flex;gap:.4rem;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:transparent;border-radius:999px;padding:.45rem .95rem;cursor:pointer;font-size:.88rem;color:var(--muted)}
+.tab[aria-pressed=true]{background:var(--gold);border-color:var(--gold);color:#0b0b0b;font-weight:600}
+.bar .grow{flex:1;min-width:180px}
+.bar select{width:auto}
+
+/* ---- list ---- */
+.list{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--bg2)}
+.row{display:grid;grid-template-columns:1.4fr 1.3fr 1.5fr .9fr;gap:1rem;align-items:center;padding:.95rem 1.2rem;border-top:1px solid var(--line);cursor:pointer;transition:background .15s}
+.row:first-child{border-top:0}
+.row:hover{background:rgba(255,255,255,.03)}
+.row--head{cursor:default;color:var(--muted);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;background:var(--bg3)}
+.row--head:hover{background:var(--bg3)}
+.who b{display:block;font-weight:600}
+.who small,.when small,.what small{display:block;color:var(--muted)}
+.when b{font-weight:500}
+.what b{font-weight:500;display:block}
+.empty{padding:3rem 1rem;text-align:center;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:.45rem;border-radius:999px;padding:.25rem .7rem;font-size:.78rem;font-weight:600;border:1px solid currentColor;text-transform:capitalize}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.s-new{color:var(--new)}.s-confirmed{color:var(--confirmed)}.s-done{color:var(--done)}.s-cancelled{color:var(--cancelled)}.s-no-show{color:var(--noshow)}
+.soon{color:var(--gold-hi)}
+
+/* ---- drawer ---- */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--bg2);border-left:1px solid var(--line);z-index:50;transform:translateX(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);overflow:auto;padding:1.4rem 1.5rem 2rem}
+.drawer.on{transform:none}
+.drawer h2{font:500 1.7rem/1.15 'Playfair Display',serif;margin:.3rem 0 .2rem}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:.55rem 1rem;margin:1.2rem 0;padding:1rem 0;border-block:1px solid var(--line)}
+.kv dt{color:var(--muted);font-size:.85rem}
+.kv dd{margin:0;word-break:break-word}
+.kv a{color:var(--gold-hi)}
+.msg{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem;margin:.4rem 0 1.2rem}
+.actions{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem}
+.close{float:right;background:transparent;border:1px solid var(--line);border-radius:50%;width:38px;height:38px;cursor:pointer}
+.toast{position:fixed;left:50%;bottom:1.4rem;transform:translate(-50%,20px);background:var(--bg3);border:1px solid var(--gold);border-radius:999px;padding:.6rem 1.2rem;z-index:80;opacity:0;transition:.25s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:860px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .row--head{display:none}
+  .row{grid-template-columns:1fr auto;grid-template-areas:"who st" "when when" "what what";gap:.35rem 1rem}
+  .row .who{grid-area:who}.row .st{grid-area:st;justify-self:end}.row .when{grid-area:when}.row .what{grid-area:what}
+  .kv{grid-template-columns:96px 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- sign in -->
+<main class="login" id="login" hidden>
+  <form class="login__card" id="loginForm" autocomplete="on">
+    <div class="brand">PRIME ERA</div>
+    <h1>Admin portal</h1>
+    <p>Sign in to see your call bookings.</p>
+    <label class="field"><span class="mono">Password</span><input type="password" id="pw" name="password" autocomplete="current-password" required autofocus></label>
+    <button class="btn" id="loginBtn" type="submit" style="width:100%">Sign in</button>
+    <p class="err" id="loginErr" role="alert"></p>
+  </form>
+</main>
+
+<!-- app -->
+<div id="app" hidden>
+  <header class="top">
+    <div><span class="brand">PRIME ERA</span> <span class="mono" style="margin-left:.6rem">Bookings</span></div>
+    <div class="top__r">
+      <button class="btn btn--ghost btn--sm" id="refresh" type="button">Refresh</button>
+      <button class="btn btn--ghost btn--sm" id="csv" type="button">Export CSV</button>
+      <button class="btn btn--ghost btn--sm" id="logout" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="banner" id="banner" hidden></div>
+
+    <section class="stats" aria-label="Summary">
+      <div class="stat stat--new"><span class="mono">New</span><b id="stNew">0</b></div>
+      <div class="stat"><span class="mono">Upcoming calls</span><b id="stUp">0</b></div>
+      <div class="stat"><span class="mono">Completed</span><b id="stDone">0</b></div>
+      <div class="stat"><span class="mono">All bookings</span><b id="stAll">0</b></div>
+    </section>
+
+    <div class="bar">
+      <div class="tabs" id="tabs" role="group" aria-label="Filter by status"></div>
+      <input class="grow" type="search" id="q" placeholder="Search name, email, company, topic…" aria-label="Search bookings">
+      <select id="sort" aria-label="Sort">
+        <option value="call">Sort: call time (soonest)</option>
+        <option value="new">Sort: newest first</option>
+      </select>
+    </div>
+
+    <div class="list" id="list" role="table" aria-label="Bookings"></div>
+  </div>
+</div>
+
+<!-- detail drawer -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Booking details">
+  <button class="close" id="close" type="button" aria-label="Close">✕</button>
+  <div id="dBody"></div>
+</aside>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = (s, c = document) => c.querySelector(s);
+  const STATUSES = ['new', 'confirmed', 'done', 'cancelled', 'no-show'];
+  const LABEL = { new: 'New', confirmed: 'Confirmed', done: 'Done', cancelled: 'Cancelled', 'no-show': 'No-show' };
+  const TEAM_TZ = 'Asia/Dubai';
+  let all = [], filter = 'all', openId = null, timer = 0;
+
+  /* ---------- tiny DOM helper (no innerHTML → no injection) ---------- */
+  const h = (tag, attrs, ...kids) => {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v === false || v == null) continue;
+      if (k === 'class') el.className = v; else if (k.startsWith('on')) el.addEventListener(k.slice(2), v); else el.setAttribute(k, v === true ? '' : v);
+    }
+    for (const kid of kids.flat(Infinity)) if (kid != null && kid !== false) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+    return el;
+  };
+
+  /* ---------- api ---------- */
+  async function api(url, opts = {}) {
+    const r = await fetch(url, { credentials: 'same-origin', ...opts, headers: { 'Content-Type': 'application/json', 'X-PE-Admin': '1', ...(opts.headers || {}) } });
+    let d = null; try { d = await r.json(); } catch (e) { /* empty */ }
+    if (r.status === 401 && !url.endsWith('/login')) { showLogin(); throw new Error('Please sign in again.'); }
+    if (!r.ok) { const e = new Error((d && d.error) || 'Something went wrong (' + r.status + ')'); e.code = d && d.error; e.status = r.status; throw e; }
+    return d;
+  }
+  const toast = msg => { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 2400); };
+
+  /* ---------- formatting ---------- */
+  const fmt = (iso, tz, o) => new Intl.DateTimeFormat('en-GB', { timeZone: tz, ...o }).format(new Date(iso));
+  const dubaiDay = iso => fmt(iso, TEAM_TZ, { weekday: 'short', day: 'numeric', month: 'short' });
+  const dubaiTime = iso => fmt(iso, TEAM_TZ, { hour: '2-digit', minute: '2-digit', hour12: false });
+  const relative = iso => {
+    const d = new Date(iso).getTime() - Date.now(), abs = Math.abs(d), m = abs / 60e3;
+    const s = m < 60 ? Math.round(m) + ' min' : m < 1440 ? Math.round(m / 60) + ' h' : Math.round(m / 1440) + ' d';
+    return d >= 0 ? 'in ' + s : s + ' ago';
+  };
+  const upcoming = b => (b.status === 'new' || b.status === 'confirmed') && new Date(b.startUtc).getTime() > Date.now();
+  const waLink = p => { const d = (p || '').replace(/[^\d]/g, ''); return d.length >= 8 ? 'https://wa.me/' + d : null; };
+
+  /* ---------- screens ---------- */
+  function showLogin(msg) {
+    $('#app').hidden = true; $('#login').hidden = false; closeDrawer();
+    clearInterval(timer);
+    $('#loginErr').textContent = msg || '';
+    $('#pw').focus();
+  }
+  function showApp() { $('#login').hidden = true; $('#app').hidden = false; clearInterval(timer); timer = setInterval(() => { if (!document.hidden) load(true); }, 60000); }
+
+  $('#loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = $('#loginBtn'); btn.disabled = true; $('#loginErr').textContent = '';
+    try {
+      await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ password: $('#pw').value }) });
+      $('#pw').value = ''; showApp(); await load();
+    } catch (err) {
+      $('#loginErr').textContent = err.code === 'wrong_password' ? 'That password is not right.'
+        : err.code === 'too_many_attempts' ? 'Too many attempts. Please wait 15 minutes and try again.'
+        : err.code === 'admin_not_configured' ? 'The admin password has not been set up on the server yet.'
+        : err.message;
+    } finally { btn.disabled = false; }
+  });
+  $('#logout').addEventListener('click', async () => { try { await api('/api/admin/login', { method: 'DELETE' }); } catch (e) { /* ignore */ } showLogin(); });
+  $('#refresh').addEventListener('click', () => load());
+
+  /* ---------- data ---------- */
+  async function load(silent) {
+    try {
+      const d = await api('/api/admin/bookings');
+      all = d.bookings || [];
+      const b = $('#banner');
+      if (d.storage === 'none') { b.hidden = false; b.textContent = 'Storage is not connected yet — new bookings cannot be saved. Follow README.md to connect the free Redis database.'; }
+      else if (d.storage === 'file') { b.hidden = false; b.textContent = 'Local test mode: bookings are saved in a file on this computer, not in the live database.'; }
+      else b.hidden = true;
+      render();
+      if (openId) { const cur = all.find(x => x.id === openId); if (cur) drawer(cur, true); }
+    } catch (e) { if (!silent) toast(e.message); }
+  }
+
+  /* ---------- list ---------- */
+  function visible() {
+    const q = $('#q').value.trim().toLowerCase();
+    let list = all.filter(b => (filter === 'all' || (filter === 'upcoming' ? upcoming(b) : b.status === filter)) &&
+      (!q || [b.name, b.email, b.company, b.topic, b.phone, b.message].some(v => (v || '').toLowerCase().includes(q))));
+    if ($('#sort').value === 'call') {
+      const now = Date.now();
+      list.sort((a, c) => {
+        const ua = new Date(a.startUtc) >= now, uc = new Date(c.startUtc) >= now;
+        if (ua !== uc) return ua ? -1 : 1;
+        return ua ? new Date(a.startUtc) - new Date(c.startUtc) : new Date(c.startUtc) - new Date(a.startUtc);
+      });
+    } else list.sort((a, c) => (c.createdAt || '').localeCompare(a.createdAt || ''));
+    return list;
+  }
+
+  function render() {
+    const cnt = s => all.filter(b => b.status === s).length;
+    $('#stNew').textContent = cnt('new'); $('#stUp').textContent = all.filter(upcoming).length;
+    $('#stDone').textContent = cnt('done'); $('#stAll').textContent = all.length;
+
+    const tabs = $('#tabs'); tabs.replaceChildren(
+      ...[['all', 'All', all.length], ['upcoming', 'Upcoming', all.filter(upcoming).length], ...STATUSES.map(s => [s, LABEL[s], cnt(s)])]
+        .map(([k, t, n]) => h('button', { class: 'tab', type: 'button', 'aria-pressed': String(filter === k), onclick: () => { filter = k; render(); } }, `${t} · ${n}`)));
+
+    const list = visible(), box = $('#list');
+    box.replaceChildren();
+    if (!list.length) { box.append(h('div', { class: 'empty' }, all.length ? 'No bookings match this filter.' : 'No bookings yet. They will appear here as soon as someone books a call.')); return; }
+    box.append(h('div', { class: 'row row--head', role: 'row' }, h('span', {}, 'Who'), h('span', {}, 'Call time (Dubai)'), h('span', {}, 'Topic'), h('span', {}, 'Status')));
+    for (const b of list) {
+      box.append(h('div', { class: 'row', role: 'row', tabindex: '0', onclick: () => drawer(b), onkeydown: e => { if (e.key === 'Enter') drawer(b); } },
+        h('div', { class: 'who' }, h('b', {}, b.name), h('small', {}, b.email + (b.company ? ' · ' + b.company : ''))),
+        h('div', { class: 'when' }, h('b', {}, `${dubaiDay(b.startUtc)} · ${dubaiTime(b.startUtc)}`), h('small', { class: upcoming(b) ? 'soon' : '' }, relative(b.startUtc))),
+        h('div', { class: 'what' }, h('b', {}, b.topic), h('small', {}, b.mode)),
+        h('div', { class: 'st' }, h('span', { class: 'chip s-' + b.status }, LABEL[b.status] || b.status))));
+    }
+  }
+  $('#q').addEventListener('input', render);
+  $('#sort').addEventListener('change', render);
+
+  /* ---------- drawer ---------- */
+  function closeDrawer() { openId = null; $('#drawer').classList.remove('on'); $('#scrim').classList.remove('on'); $('#drawer').setAttribute('aria-hidden', 'true'); }
+  $('#close').addEventListener('click', closeDrawer); $('#scrim').addEventListener('click', closeDrawer);
+  addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+  function icsFor(b) {
+    const z = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const s = new Date(b.startUtc), e = new Date(s.getTime() + 30 * 60e3);
+    const clean = t => String(t || '').replace(/[\r\n]+/g, ' ').replace(/[\\;,]/g, m => '\\' + m);
+    return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Prime Era//Admin//EN', 'BEGIN:VEVENT', `UID:${b.id}@primeera.us`, `DTSTAMP:${z(new Date())}`,
+      `DTSTART:${z(s)}`, `DTEND:${z(e)}`, `SUMMARY:${clean('Call: ' + b.name + ' — ' + b.topic)}`,
+      `DESCRIPTION:${clean(b.mode + ' · ' + b.email + ' · ' + (b.phone || ''))}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  }
+
+  function drawer(b, quiet) {
+    openId = b.id;
+    const wa = waLink(b.phone);
+    const sel = h('select', { id: 'fStatus', 'aria-label': 'Status' }, STATUSES.map(s => h('option', { value: s, selected: s === b.status }, LABEL[s])));
+    const notes = h('textarea', { id: 'fNotes', rows: '4', placeholder: 'Private notes — only you see these' }); notes.value = b.notes || '';
+    const body = $('#dBody');
+    if (quiet && body.contains(document.activeElement) && (document.activeElement === notes || document.activeElement.id === 'fNotes')) return;   // don't clobber typing
+    body.replaceChildren(
+      h('p', { class: 'mono' }, 'Booked ' + fmt(b.createdAt, TEAM_TZ, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false }) + ' (Dubai)'),
+      h('h2', {}, b.name),
+      h('span', { class: 'chip s-' + b.status }, LABEL[b.status] || b.status),
+      h('dl', { class: 'kv' },
+        h('dt', {}, 'Call time'), h('dd', {}, `${dubaiDay(b.startUtc)} · ${dubaiTime(b.startUtc)} Dubai`, h('br'), h('small', { class: 'mono' }, relative(b.startUtc))),
+        h('dt', {}, 'Visitor time'), h('dd', {}, (b.visitorTime || '—')),
+        h('dt', {}, 'Topic'), h('dd', {}, b.topic),
+        h('dt', {}, 'Format'), h('dd', {}, b.mode),
+        h('dt', {}, 'Email'), h('dd', {}, h('a', { href: 'mailto:' + b.email }, b.email)),
+        h('dt', {}, 'Phone'), h('dd', {}, b.phone ? [h('a', { href: 'tel:' + b.phone.replace(/[^\d+]/g, '') }, b.phone), wa ? [' · ', h('a', { href: wa, target: '_blank', rel: 'noopener' }, 'WhatsApp')] : null] : '—'),
+        h('dt', {}, 'Company'), h('dd', {}, b.company || '—')),
+      h('p', { class: 'mono' }, 'Their message'),
+      h('div', { class: 'msg' }, b.message || '—'),
+      h('label', { class: 'field' }, h('span', { class: 'mono' }, 'Status'), sel),
+      h('label', { class: 'field' }, h('span', { class: 'mono' }, 'Notes'), notes),
+      h('div', { class: 'actions' },
+        h('button', { class: 'btn', type: 'button', id: 'save', onclick: () => save(b) }, 'Save changes'),
+        h('button', { class: 'btn btn--ghost', type: 'button', onclick: () => { const u = URL.createObjectURL(new Blob([icsFor(b)], { type: 'text/calendar' })); const a = h('a', { href: u, download: 'call-' + b.id + '.ics' }); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1000); } }, 'Add to calendar'),
+        h('button', { class: 'btn btn--danger', type: 'button', onclick: () => remove(b) }, 'Delete')));
+    $('#drawer').classList.add('on'); $('#scrim').classList.add('on'); $('#drawer').setAttribute('aria-hidden', 'false');
+  }
+
+  async function save(b) {
+    const btn = $('#save'); btn.disabled = true;
+    try {
+      const d = await api('/api/admin/bookings', { method: 'PATCH', body: JSON.stringify({ id: b.id, status: $('#fStatus').value, notes: $('#fNotes').value }) });
+      const i = all.findIndex(x => x.id === b.id); if (i >= 0) all[i] = d.booking;
+      render(); drawer(d.booking); toast('Saved');
+    } catch (e) {
+      toast(e.code === 'slot_taken' ? 'That time has been booked by someone else, so this cannot be re-activated.' : e.message);
+      btn.disabled = false;
+    }
+  }
+  async function remove(b) {
+    if (!confirm('Delete the booking from ' + b.name + '? This cannot be undone.')) return;
+    try { await api('/api/admin/bookings', { method: 'DELETE', body: JSON.stringify({ id: b.id }) }); all = all.filter(x => x.id !== b.id); closeDrawer(); render(); toast('Deleted'); }
+    catch (e) { toast(e.message); }
+  }
+
+  /* ---------- CSV ---------- */
+  $('#csv').addEventListener('click', () => {
+    const cols = ['id', 'createdAt', 'status', 'name', 'email', 'phone', 'company', 'topic', 'mode', 'startUtc', 'teamTime', 'visitorTime', 'message', 'notes'];
+    const cell = v => { let s = String(v == null ? '' : v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };   // also neutralises spreadsheet formulas
+    const csv = [cols.join(','), ...visible().map(b => cols.map(c => cell(b[c])).join(','))].join('\r\n');
+    const u = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+    const a = h('a', { href: u, download: 'prime-era-bookings-' + new Date().toISOString().slice(0, 10) + '.csv' }); document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(u), 1000);
+  });
+
+  /* ---------- start ---------- */
+  (async () => {
+    try {
+      const me = await api('/api/admin/login');
+      if (me.authed) { showApp(); await load(); }
+      else showLogin(me.configured ? '' : 'The admin password has not been set up on the server yet (see README.md).');
+    } catch (e) { showLogin('Could not reach the server. ' + e.message); }
+  })();
+})();
+</script>
+</body>
+</html>
